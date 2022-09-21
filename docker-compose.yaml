@@ -1,0 +1,10 @@
+services:
+  schedule:
+    build: .
+    container_name: tgfp-bot
+    environment:
+      - DOPPLER_TOKEN=dp.st.prd.MlKBnw0ilespNejtMOPe8QKxCNOIRQrolPf8E2ENmlg
+      - DOPPLER_ENV=1
+      - TZ=US/Pacific
+    restart: unless-stopped
+
