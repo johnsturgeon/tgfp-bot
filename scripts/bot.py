@@ -42,10 +42,13 @@ async def ping(event: hikari.GuildMessageCreateEvent) -> None:
         await event.message.respond("No scores yet!!")
     elif event.content.startswith('!TGFP Do I Care'):
         player: TGFPPlayer = tgfp.find_players(discord_id=event.member.id)[0]
-        scores = get_game_care_scores_for_player(player)
-        i_care_str: str = formatted_care(scores)
-        i_care_str += "\n`!TGFP Help for description`"
-        await event.message.respond(i_care_str)
+        if not player.this_weeks_picks():
+            await event.message.respond("You must not care that much, you haven't even entered your picks yet!")
+        else:
+            scores = get_game_care_scores_for_player(player)
+            i_care_str: str = formatted_care(scores)
+            i_care_str += "\n`!TGFP Help for description`"
+            await event.message.respond(i_care_str)
     elif event.content.startswith('!TGFP'):
         await event.message.respond(help_string)
 
