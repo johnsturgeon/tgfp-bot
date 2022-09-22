@@ -38,15 +38,17 @@ def get_game_care_scores_for_player(player: TGFPPlayer) -> List[GameCareScore]:
     return care_scores
 
 
-def formatted_care(care_scores: List[GameCareScore]) -> str:
-    w: int = length_of_city() + 1
-    h1: str = "Road Team"
-    h2: str = "Home Team"
-    h3: str = "Num Against"
-    h4: str = "Care Score"
+def formatted_care(care_scores: List[GameCareScore], compact=False) -> str:
+
+    w: int = (length_of_short_name() if compact else length_of_city()) + 1
+    h1: str = "Away" if compact else "Road Team"
+    h2: str = "Home" if compact else "Home Team"
+    h3: str = "" if compact else " Num Against "
+    h4: str = " Stars" if compact else " Care Score"
     output: str = "```"
-    output += f"{h1:{w}} @ {h2:{w}} Num Against | Care Score\n"
-    output += "========================================================\n"
+    output += f"{h1:{w}} @ {h2:{w}}{h3}{h4}\n"
+    output += "===================\n" if compact \
+        else "========================================================\n"
     for care in care_scores:
         stars: int = 0
         if 0 < care.care_score < 0.1:
@@ -59,10 +61,11 @@ def formatted_care(care_scores: List[GameCareScore]) -> str:
         print(stars)
         home_team: TGFPTeam = tgfp.find_teams(care.game.home_team_id)[0]
         road_team: TGFPTeam = tgfp.find_teams(care.game.road_team_id)[0]
-        home_name: str = home_team.city
-        road_name: str = road_team.city
-        game_time: str = care.game.extra_info['game_time']
-        output += f"{road_name:{w}} @ {home_name:{w}} {care.player_count_against: ^14}{star_string:<5}\n"
+        home_name: str = home_team.short_name if compact else home_team.city
+        road_name: str = road_team.short_name if compact else road_team.city
+        col_3: str = "" if compact else care.player_count_against
+        w3: int = 0 if compact else 14
+        output += f"{road_name:{w}} @ {home_name:{w}} {col_3:^{w3}}{star_string:<5}\n"
     output += "```"
     return output
 
@@ -71,6 +74,13 @@ def length_of_city() -> int:
     max_length: int = 0
     for team in tgfp.teams():
         max_length = max(len(team.city), max_length)
+    return max_length
+
+
+def length_of_short_name() -> int:
+    max_length: int = 0
+    for team in tgfp.teams():
+        max_length = max(len(team.short_name), max_length)
     return max_length
 
 
