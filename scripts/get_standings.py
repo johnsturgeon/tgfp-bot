@@ -1,4 +1,3 @@
-import math
 from dataclasses import dataclass
 from typing import List
 
@@ -38,35 +37,25 @@ def get_game_care_scores_for_player(player: TGFPPlayer) -> List[GameCareScore]:
     return care_scores
 
 
-def formatted_care(care_scores: List[GameCareScore], compact=False) -> str:
-
-    w: int = (length_of_short_name() if compact else length_of_city()) + 1
-    h1: str = "Away" if compact else "Road Team"
-    h2: str = "Home" if compact else "Home Team"
-    h3: str = "" if compact else " Num Against "
-    h4: str = " Stars" if compact else " Care Score"
-    output: str = "```"
-    output += f"{h1:{w}} @ {h2:{w}}{h3}{h4}\n"
-    output += "===================\n" if compact \
-        else "========================================================\n"
+def formatted_care(care_scores: List[GameCareScore]) -> str:
+    output: str = ""
     for care in care_scores:
-        stars: int = 0
         if 0 < care.care_score < 0.1:
             stars = 1
         else:
             stars = round(care.care_score / .2)
         star_string: str = ""
         for n in range(stars):
-            star_string += '⭐'
-        print(stars)
-        home_team: TGFPTeam = tgfp.find_teams(care.game.home_team_id)[0]
+            star_string += ':star:'
         road_team: TGFPTeam = tgfp.find_teams(care.game.road_team_id)[0]
-        home_name: str = home_team.short_name if compact else home_team.city
-        road_name: str = road_team.short_name if compact else road_team.city
-        col_3: str = "" if compact else care.player_count_against
-        w3: int = 0 if compact else 14
-        output += f"{road_name:{w}} @ {home_name:{w}} {col_3:^{w3}}{star_string:<5}\n"
-    output += "```"
+        home_team: TGFPTeam = tgfp.find_teams(care.game.home_team_id)[0]
+        road_team_emoji: str = road_team.discord_emoji
+        home_team_emoji: str = home_team.discord_emoji
+        # local_time = arrow.get(care.game.start_time).to('US/Pacific')
+        # formatted_time = local_time.format("ddd @ h:mma ZZZ")
+        output += f"{road_team_emoji} @ {home_team_emoji} {star_string}\n"
+
+    output += "\n> Type `/help` for more information"
     return output
 
 
